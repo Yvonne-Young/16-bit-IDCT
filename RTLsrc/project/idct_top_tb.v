@@ -1,0 +1,62 @@
+module idct_top_tb;
+
+reg clk,rst_n;
+reg [15:0]data;
+reg [1:0]mode;
+
+idct_top idct_top(
+	.clk(clk),
+	.rst_n(rst_n),
+	.data(data),
+	.mode(mode)
+	);
+
+initial begin
+#0	clk=0;
+forever #5	clk=!clk;
+end
+
+initial begin
+#0	rst_n=0;
+#15	rst_n=1;
+end
+
+initial begin
+#0	mode=2'b01;
+#1495	mode=2'b0;
+end
+
+reg[15:0] count;
+always@(posedge clk or negedge rst_n)
+if(!rst_n)
+	count<=0;
+else if(count<147)
+	count<=count+1;
+else
+	count<=0;
+
+reg [3:0]count4;
+always@(posedge clk or negedge rst_n)
+if(!rst_n)
+	count4<=4'b0;
+else if(mode == 2'b0 && count4<15)
+	count4<=count4+1;
+else if(mode == 2'b0)
+	count4<=4'b0;
+else
+	count4<=count4;
+
+always@(posedge clk or negedge rst_n)
+if(!rst_n)
+	data<=16'b0;
+else if(mode == 2'b01 && data<63)
+	data<=count;
+else if(mode == 2'b01)
+	data<=data;
+else if(mode == 2'b0 && data<15)
+	data<=count4;
+else
+	data<=16'b0;
+
+endmodule
+
